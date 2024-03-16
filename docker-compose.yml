@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  php1:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    image: php
+    container_name: php1
+    restart: unless-stopped
+    volumes:
+      - ./php:/var/www/app/
+    environment:
+      - SERVICE_ID=1
+      - PORT=8000
+    networks:
+      - app_net
+
+  php2:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    image: php
+    container_name: php2
+    restart: unless-stopped
+    volumes:
+      - ./php:/var/www/app/
+    environment:
+      - SERVICE_ID=2
+      - PORT=8001
+    networks:
+      - app_net
+
+  nginx-php:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    image: nginx:alpine
+    container_name: nginx-php
+    restart: unless-stopped
+    volumes:
+      - ./php:/var/www/app/
+      - ./nginx/conf/:/etc/nginx/conf.d/
+    networks:
+      - app_net
+    ports:
+      - 80:80
+    depends_on:
+      - php1
+
+networks:
+   app_net:
+    driver: bridge
